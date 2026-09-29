@@ -91,7 +91,7 @@ function openContact(mode, trigger, social) {
 function startStripeCheckout(trigger) {
   trackMetaEvent('InitiateCheckout', { content_name: '6CAT ACADEMY Private Workshop', value: 1499, currency: 'THB' });
   if (/^https:\/\/(buy|checkout)\.stripe\.com\//i.test(STRIPE_PAYMENT_LINK)) {
-    window.location.assign(STRIPE_PAYMENT_LINK);
+    window.setTimeout(() => window.location.assign(STRIPE_PAYMENT_LINK), 180);
     return;
   }
   openContact('enroll', trigger);
