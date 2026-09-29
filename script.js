@@ -2,11 +2,15 @@
 // Paste the Stripe Payment Link created for the 1,499 THB Private Workshop here.
 // Example format: https://buy.stripe.com/xxxxxxxxxxxxxxxxxx
 const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/8x2dR99JP14ecuSdX0dUY00';
+const META_PIXEL_ID = '1029806336785697';
 const ACADEMY = { consultationUrl: '', facebook: '', instagram: '', line: '' };
 // Change this value when the offer deadline changes (Bangkok time).
 const PROMO_END_AT = '2026-10-08T23:59:59+07:00';
 const menuButton = document.querySelector('.menu-toggle');
 const navigation = document.querySelector('#navigation');
+function trackMetaEvent(eventName, parameters = {}) {
+  if (typeof window.fbq === 'function') window.fbq('track', eventName, parameters);
+}
 function closeMenu() {
   navigation.classList.remove('is-open');
   menuButton.setAttribute('aria-expanded', 'false');
@@ -85,6 +89,7 @@ function openContact(mode, trigger, social) {
   dialog.showModal();
 }
 function startStripeCheckout(trigger) {
+  trackMetaEvent('InitiateCheckout', { content_name: '6CAT ACADEMY Private Workshop', value: 1499, currency: 'THB' });
   if (/^https:\/\/(buy|checkout)\.stripe\.com\//i.test(STRIPE_PAYMENT_LINK)) {
     window.location.assign(STRIPE_PAYMENT_LINK);
     return;
@@ -92,8 +97,9 @@ function startStripeCheckout(trigger) {
   openContact('enroll', trigger);
 }
 document.querySelectorAll('[data-enroll]').forEach(button => button.addEventListener('click', () => startStripeCheckout(button)));
-document.querySelectorAll('[data-consult]').forEach(button => button.addEventListener('click', () => openContact('consult', button)));
-document.querySelectorAll('[data-social]').forEach(button => button.addEventListener('click', () => openContact('consult', button, button.dataset.social)));
+document.querySelectorAll('[data-consult]').forEach(button => button.addEventListener('click', () => { trackMetaEvent('Contact', { content_name: 'Free consultation' }); openContact('consult', button); }));
+document.querySelectorAll('[data-social]').forEach(button => button.addEventListener('click', () => { trackMetaEvent('Contact', { content_name: button.dataset.social + ' contact' }); openContact('consult', button, button.dataset.social); }));
+document.querySelectorAll('.line-float, .dialog-line').forEach(link => link.addEventListener('click', () => trackMetaEvent('Contact', { content_name: 'LINE contact' })));
 document.querySelector('.dialog-close').addEventListener('click', () => dialog.close());
 dialog.addEventListener('click', event => {
   if (event.target !== dialog) return;
